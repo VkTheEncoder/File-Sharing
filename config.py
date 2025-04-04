@@ -22,7 +22,7 @@ API_ID = int(environ.get("API_ID", "27999679"))
 API_HASH = environ.get("API_HASH", "f553398ca957b9c92bcb672b05557038")
 BOT_TOKEN = environ.get("BOT_TOKEN", "7947042930:AAE14yUT642RjiiwkaM_dgoGazQdh54SkcU")
 
-PICS = (environ.get('PICS', 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fxian-ni.fandom.com%2Fwiki%2FDonghua&psig=AOvVaw1VHhOj8fEZLBtq6OgEW5p9&ust=1743865748710000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCMjMnK_UvowDFQAAAAAdAAAAABAE')).split() # Bot Start Picture
+PICS = (environ.get('PICS', 'https://static.wikia.nocookie.net/xian-ni/images/1/11/Wanglin.webp/revision/latest?cb=20241209233813')).split() # Bot Start Picture
 ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '').split()]
 BOT_USERNAME = environ.get("BOT_USERNAME", "file_sharing_bot03_bot") # without @
 PORT = environ.get("PORT", "8080")
