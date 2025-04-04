@@ -1,6 +1,6 @@
 import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, http.client
-from datetime import date, datetime
-from config import SHORTLINK_API, SHORTLINK_URL
+from datetime import date, datetime, timedelta
+from config import SHORTLINK_API, SHORTLINK_URL, VERIFY_DURATION
 from shortzy import Shortzy
 
 logger = logging.getLogger(__name__)
@@ -56,21 +56,17 @@ async def get_token(bot, userid, link):
 async def verify_user(bot, userid, token):
     user = await bot.get_users(userid)
     TOKENS[user.id] = {token: True}
-    tz = pytz.timezone('Asia/Kolkata')
-    today = date.today()
-    VERIFIED[user.id] = str(today)
+    expire_time = datetime.now() + timedelta(seconds=VERIFY_DURATION)
+    VERIFIED[user.id] = expire_time.isoformat()
 
 async def check_verification(bot, userid):
     user = await bot.get_users(userid)
-    tz = pytz.timezone('Asia/Kolkata')
-    today = date.today()
     if user.id in VERIFIED.keys():
-        EXP = VERIFIED[user.id]
-        years, month, day = EXP.split('-')
-        comp = date(int(years), int(month), int(day))
-        if comp<today:
-            return False
+        expire_time_str = VERIFIED[user.id]
+        expire_time = datetime.fromisoformat(expire_time_str)
+        if datetime.now() > expire_time:
+            return False  # Verification expired
         else:
-            return True
+            return True   # Still verified
     else:
         return False
