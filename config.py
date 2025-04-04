@@ -58,6 +58,9 @@ PUBLIC_FILE_STORE = is_enabled((environ.get('PUBLIC_FILE_STORE', "False")), True
 # Verify Info :-
 VERIFY_MODE = bool(environ.get('VERIFY_MODE', True)) # Set True or False
 
+VERIFY_DURATION = int(os.environ.get("VERIFY_DURATION", "28800"))  # Default: 86400 seconds = 24 hours
+
+
 # If Verify Mode Is True Then Fill All Required Variable, If False Then Don't Fill.
 SHORTLINK_URL = environ.get("SHORTLINK_URL", "indiaearnx.com") # shortlink domain without https://
 SHORTLINK_API = environ.get("SHORTLINK_API", "4ef712999679a47b42ac1f33898f1b4bd73cd50e") # shortlink api
