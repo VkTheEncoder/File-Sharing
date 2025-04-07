@@ -1,3 +1,8 @@
+# Don't Remove Credit @VJ_Botz
+# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
+# Ask Doubt on telegram @KingVJ01
+
+
 import sys
 import glob
 import importlib
@@ -6,14 +11,19 @@ from pyrogram import idle
 import logging
 import logging.config
 
-# Don't Remove Credit @VJ_Botz
+# Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
 # Ask Doubt on telegram @KingVJ01
 
-# Load logging configurations
+# Get logging configurations
 logging.config.fileConfig('logging.conf')
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
+
+# Don't Remove Credit Tg - @VJ_Botz
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
+# Ask Doubt on telegram @KingVJ01
+
 
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
@@ -26,6 +36,10 @@ import pytz
 from aiohttp import web
 from TechVJ.server import web_server
 
+# Don't Remove Credit Tg - @VJ_Botz
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
+# Ask Doubt on telegram @KingVJ01
+
 import asyncio
 from pyrogram import idle
 from plugins.clone import restart_bots
@@ -33,65 +47,66 @@ from TechVJ.bot import StreamBot
 from TechVJ.utils.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
-# ---------------------------------------------------
-# Modified Plugin Loader:
-# This will load all .py files from both "plugins" and "clone_plugins" folders.
-# ---------------------------------------------------
-plugin_patterns = ["plugins/*.py", "clone_plugins/*.py"]
-files = []
-for pattern in plugin_patterns:
-    files.extend(glob.glob(pattern))
+# Don't Remove Credit Tg - @VJ_Botz
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
+# Ask Doubt on telegram @KingVJ01
 
+
+ppath = "plugins/*.py"
+files = glob.glob(ppath)
 StreamBot.start()
 loop = asyncio.get_event_loop()
 
+# Don't Remove Credit Tg - @VJ_Botz
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
+# Ask Doubt on telegram @KingVJ01
+
+
 async def start():
-    print('\nInitializing Tech VJ Bot')
+    print('\n')
+    print('Initalizing Tech VJ Bot')
     bot_info = await StreamBot.get_me()
     StreamBot.username = bot_info.username
     await initialize_clients()
-    
-    for file_path in files:
-        with open(file_path) as file_handle:
-            path_obj = Path(file_handle.name)
-            plugin_name = path_obj.stem  # Gets filename without extension
-            
-            # Determine the import path based on the folder
-            if "clone_plugins" in file_path:
-                import_path = f"clone_plugins.{plugin_name}"
-            else:
-                import_path = f"plugins.{plugin_name}"
-            
-            spec = importlib.util.spec_from_file_location(import_path, file_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            sys.modules[import_path] = module
+    for name in files:
+        with open(name) as a:
+            patt = Path(a.name)
+            plugin_name = patt.stem.replace(".py", "")
+            plugins_dir = Path(f"plugins/{plugin_name}.py")
+            import_path = "plugins.{}".format(plugin_name)
+            spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
+            load = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(load)
+            sys.modules["plugins." + plugin_name] = load
             print("Tech VJ Imported => " + plugin_name)
-    
     if ON_HEROKU:
         asyncio.create_task(ping_server())
-    
     me = await StreamBot.get_me()
     tz = pytz.timezone('Asia/Kolkata')
     today = date.today()
     now = datetime.now(tz)
-    current_time = now.strftime("%H:%M:%S %p")
-    
-    # Start the web server for keepalive or other purposes
-    app_runner = web.AppRunner(await web_server())
-    await StreamBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, current_time))
-    await app_runner.setup()
+    time = now.strftime("%H:%M:%S %p")
+    app = web.AppRunner(await web_server())
+    await StreamBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
+    await app.setup()
     bind_address = "0.0.0.0"
-    await web.TCPSite(app_runner, bind_address, PORT).start()
-    
-    if CLONE_MODE:
+    await web.TCPSite(app, bind_address, PORT).start()
+    if CLONE_MODE == True:
         await restart_bots()
-    
     print("Bot Started Powered By @THe_vK_3")
     await idle()
+
+# Don't Remove Credit Tg - @VJ_Botz
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
+# Ask Doubt on telegram @KingVJ01
 
 if __name__ == '__main__':
     try:
         loop.run_until_complete(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
+
+
+# Don't Remove Credit Tg - @VJ_Botz
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
+# Ask Doubt on telegram @KingVJ01
