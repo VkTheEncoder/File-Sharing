@@ -1,76 +1,96 @@
-# clone_genlink.py
-#
 # Don't Remove Credit @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
 # Ask Doubt on telegram @KingVJ01
 
 import base64
-from pyrogram import Client, filters
-from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, UsernameInvalid, UsernameNotModified
-from config import ADMINS, LOG_CHANNEL, PUBLIC_FILE_STORE, WEBSITE_URL, WEBSITE_URL_MODE
-from clone_plugins.users_api import get_user, get_short_link
+from pyrogram import Client, filters, enums
+from config import LOG_CHANNEL  # Ensure LOG_CHANNEL is set in your config file
+from clone_plugins.users_api import get_user, get_short_link  # Optional: if you use these for shortening links
 
-
-# Optional: same "allowed" filter as main bot
-async def allowed(_, __, message):
-    # If you want everyone to be able to use /link, set PUBLIC_FILE_STORE = True
-    # Or restrict it to ADMINS only, etc.
-    if PUBLIC_FILE_STORE:
-        return True
-    if message.from_user and message.from_user.id in ADMINS:
-        return True
-    return False
-
-
-@Client.on_message(filters.command("link") & filters.create(allowed))
-async def gen_link_s(bot, message):
+# ------------------ /start Handler ------------------ #
+@Client.on_message(filters.command("start") & filters.private)
+async def start_handler(bot, message):
     """
-    Reply to a video/audio/document message and get a shareable link
-    just like your main bot does.
+    This handler processes the start parameter. When a user clicks on the shareable link,
+    they are sent a /start command with a Base64 parameter (e.g., ?start=file_1234). This handler:
+      1. Decodes the parameter.
+      2. Checks if it starts with 'file_'.
+      3. Copies the file (message) from the LOG_CHANNEL to the user.
     """
-    username = (await bot.get_me()).username
+    if len(message.command) > 1:
+        param = message.command[1]
+        # Fix missing Base64 padding if needed.
+        param += "=" * (-len(param) % 4)
+        try:
+            decoded = base64.urlsafe_b64decode(param).decode("ascii")
+        except Exception as e:
+            return await message.reply(f"Invalid start parameter. Error: {e}")
+
+        if decoded.startswith("file_"):
+            msg_id_str = decoded.split("_", 1)[1]
+            if not msg_id_str.isdigit():
+                return await message.reply("Invalid file identifier.")
+            msg_id = int(msg_id_str)
+            try:
+                # Copy the file from the LOG_CHANNEL to the user's chat.
+                await bot.copy_message(
+                    chat_id=message.chat.id,
+                    from_chat_id=LOG_CHANNEL,
+                    message_id=msg_id
+                )
+            except Exception as e:
+                return await message.reply(f"Could not fetch the file. Error: {e}")
+        else:
+            return await message.reply("Unknown start parameter.")
+    else:
+        # Normal /start command (without parameter)
+        await message.reply(
+            "Hello! I'm your clone bot.\nReply to a supported file (video, audio, or document) with /link to generate a shareable link."
+        )
+
+
+# ------------------ /link Handler ------------------ #
+@Client.on_message(filters.command("link") & filters.private)
+async def gen_link_s(client: Client, message):
+    """
+    When a user replies to a message (with a video, audio, or document) with /link,
+    this handler copies the message to the LOG_CHANNEL, encodes the message ID,
+    and sends back a shareable link.
+    """
     replied = message.reply_to_message
     if not replied:
         return await message.reply("Reply to a message to get a shareable link.")
 
-    # 1) Copy the replied message to LOG_CHANNEL
+    file_type = replied.media
+    if file_type not in [enums.MessageMediaType.VIDEO, enums.MessageMediaType.AUDIO, enums.MessageMediaType.DOCUMENT]:
+        return await message.reply("Please reply to a supported media (video, audio, or document).")
+
     try:
+        # Copy the file to the LOG_CHANNEL.
         post = await replied.copy(LOG_CHANNEL)
-    except ChannelInvalid:
-        return await message.reply(
-            "LOG_CHANNEL seems invalid. Make sure the bot is an admin in that channel."
-        )
-    except (UsernameInvalid, UsernameNotModified):
-        return await message.reply("Invalid LOG_CHANNEL username or ID.")
     except Exception as e:
-        return await message.reply(f"Error copying message: {e}")
+        return await message.reply(f"Error copying file to LOG_CHANNEL: {e}")
 
-    # 2) Use the channel message's ID
-    file_id = str(post.id)  # e.g. 1234
-    # Create the string "file_<msg_id>"
+    # Use the message ID in the LOG_CHANNEL to form the file identifier.
+    file_id = str(post.id)
     string = f"file_{file_id}"
-
-    # 3) Base64-encode the string
     outstr = base64.urlsafe_b64encode(string.encode("ascii")).decode().strip("=")
 
-    # 4) Build your final share link
+    # Get the bot's username (to form the share link).
+    bot_username = (await client.get_me()).username
+    share_link = f"https://t.me/{bot_username}?start={outstr}"
+
+    # Optionally, you can check if the user has a shortener API and generate a short link.
+    # In this example, we'll just return the original link.
+    # If you want to use get_short_link, ensure your get_user() and get_short_link() functions are working.
     user_id = message.from_user.id
     user = await get_user(user_id)
-
-    if WEBSITE_URL_MODE:
-        # If you prefer your own domain
-        share_link = f"{WEBSITE_URL}?Tech_VJ={outstr}"
-    else:
-        # Telegram deep-link
-        share_link = f"https://t.me/{username}?start={outstr}"
-
-    # 5) Optional: short-link if user has shortener API
-    if user.get("base_site") and user.get("shortener_api") is not None:
+    if user.get("shortener_api"):
         short_link = await get_short_link(user, share_link)
         await message.reply(
-            f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>"
+            f"<b>⭕ Here is your link:\n\n🖇️ Short Link :- {short_link}</b>"
         )
     else:
         await message.reply(
-            f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>"
+            f"<b>⭕ Here is your link:\n\n🔗 Original Link :- {share_link}</b>"
         )
