@@ -35,7 +35,7 @@ CLONE_DB_URI = environ.get("CLONE_DB_URI", "mongodb+srv://filesharing:cPnK4QJKan
 CDB_NAME = environ.get("CDB_NAME", "CloneVK")
 
 # Database Information
-DB_URI = environ.get("DB_URI", "mongodb+srv://soseh50374:WEsff3bG5XrNcunn@cluster0.6lfh0jj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+DB_URI = environ.get("DB_URI", "mongodb+srv://filesharing:cPnK4QJKan0XiFsa@cluster0.wbmz6ma.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 DB_NAME = environ.get("DB_NAME", "share_links")
 
 # Auto Delete Information
