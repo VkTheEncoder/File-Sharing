@@ -25,7 +25,7 @@ BOT_TOKEN = environ.get("BOT_TOKEN", "7947042930:AAE14yUT642RjiiwkaM_dgoGazQdh54
 PICS = (environ.get('PICS', 'https://static.wikia.nocookie.net/xian-ni/images/1/11/Wanglin.webp/revision/latest?cb=20241209233813')).split() # Bot Start Picture
 ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '1423807625 1048110820').split()]
 BOT_USERNAME = environ.get("BOT_USERNAME", "file_sharing_bot03_bot") # without @
-PORT = environ.get("PORT", "8080")
+PORT = environ.get("PORT", "8040")
 
 # Clone Info :-
 CLONE_MODE = bool(environ.get('CLONE_MODE', False)) # Set True or False
